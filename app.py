@@ -54,3 +54,15 @@ if __name__ == "__main__":
     print("Starting Flask application...")
     print(f"Visit: http://localhost:{port}")
     app.run(debug=False, host='0.0.0.0', port=port) # Set debug=False for production!
+
+app = create_app()
+
+# This is the WSGI callable that Gunicorn will use
+def wsgi_app(environ, start_response):
+    return app(environ, start_response)
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    print("Starting Flask application...")
+    print(f"Visit: http://localhost:{port}")
+    app.run(debug=False, host='0.0.0.0', port=port)
