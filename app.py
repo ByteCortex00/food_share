@@ -12,13 +12,9 @@ def create_app():
     app = Flask(__name__)
     
     # Enable CORS for all routes
+    # Replace your current CORS setup with this:
     CORS(app, resources={
-        r"/api/*": {"origins": "*"},
-        r"/login": {"origins": "*"},
-        r"/register": {"origins": "*"},
-        r"/donations/*": {"origins": "*"},
-        r"/users/*": {"origins": "*"},
-        r"/payments/*": {"origins": "*"}
+        r"/*": {"origins": ["https://your-app-name.onrender.com", "http://localhost:5000", "http://127.0.0.1:5000"]}
     })
 
     # Config - USE ENVIRONMENT VARIABLES

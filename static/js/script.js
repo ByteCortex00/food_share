@@ -1,5 +1,5 @@
 // API Configuration
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = window.location.origin; // This will use your current domain;
 
 // Stripe configuration
 let stripe;
