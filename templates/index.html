@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodShare - Connect Donors & Receivers</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <!-- Stripe.js -->
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-heart"></i>
+                <span>FoodShare</span>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <div class="nav-auth" id="nav-auth">
+                    <button class="btn btn-outline" id="login-btn">Login</button>
+                    <button class="btn btn-primary" id="register-btn">Register</button>
+                </div>
+                <div class="nav-user hidden" id="nav-user">
+                    <span class="user-greeting" id="user-greeting"></span>
+                    <button class="btn btn-outline" id="logout-btn">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Landing Page -->
+        <section class="hero" id="landing-page">
+            <div class="hero-content">
+                <h1 class="hero-title">Share Food, Share Hope</h1>
+                <p class="hero-subtitle">Connect food donors with those in need. Reduce waste, fight hunger.</p>
+                <div class="hero-actions">
+                    <button class="btn btn-primary btn-large" id="get-started-btn">Get Started</button>
+                    <button class="btn btn-outline btn-large" id="learn-more-btn">Learn More</button>
+                </div>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-card">
+                    <div class="stat-number">1,247</div>
+                    <div class="stat-label">Meals Shared</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">89</div>
+                    <div class="stat-label">Active Donors</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">156</div>
+                    <div class="stat-label">Families Helped</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard -->
+        <section class="dashboard hidden" id="dashboard">
+            <div class="dashboard-header">
+                <h2 id="dashboard-title">Dashboard</h2>
+                <div class="dashboard-actions">
+                    <button class="btn btn-primary" id="add-donation-btn">
+                        <i class="fas fa-plus"></i>
+                        Add Food Donation
+                    </button>
+                    <button class="btn btn-success" id="make-payment-btn">
+                        <i class="fas fa-dollar-sign"></i>
+                        Make Monetary Donation
+                    </button>
+                </div>
+            </div>
+
+            <!-- Donor Dashboard -->
+            <div class="donor-dashboard hidden" id="donor-dashboard">
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3>My Food Donations</h3>
+                        <div class="donations-list" id="my-donations-list">
+                            <div class="loading">Loading donations...</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>Payment History</h3>
+                        <div class="payments-list" id="my-payments-list">
+                            <div class="loading">Loading payment history...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Receiver Dashboard -->
+            <div class="receiver-dashboard hidden" id="receiver-dashboard">
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3>Available Donations</h3>
+                        <div class="donations-list" id="available-donations-list">
+                            <div class="loading">Loading donations...</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>My Claims</h3>
+                        <div class="claims-list" id="my-claims-list">
+                            <div class="loading">Loading claims...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modals -->
+    <!-- Login Modal -->
+    <div class="modal-overlay hidden" id="login-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Login</h3>
+                <button class="modal-close" data-modal="login-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form class="modal-body" id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal-overlay hidden" id="register-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Register</h3>
+                <button class="modal-close" data-modal="register-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form class="modal-body" id="register-form">
+                <div class="form-group">
+                    <label for="register-name">Full Name</label>
+                    <input type="text" id="register-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-role">I want to</label>
+                    <select id="register-role" required>
+                        <option value="">Select your role</option>
+                        <option value="donor">Donate food</option>
+                        <option value="receiver">Receive food</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Donation Modal -->
+    <div class="modal-overlay hidden" id="add-donation-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Add Food Donation</h3>
+                <button class="modal-close" data-modal="add-donation-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form class="modal-body" id="add-donation-form">
+                <div class="form-group">
+                    <label for="donation-item">Food Item</label>
+                    <input type="text" id="donation-item" placeholder="e.g., Fresh vegetables, Canned goods" required>
+                </div>
+                <div class="form-group">
+                    <label for="donation-quantity">Quantity</label>
+                    <input type="text" id="donation-quantity" placeholder="e.g., 5 kg, 10 cans">
+                </div>
+                <div class="form-group">
+                    <label for="donation-expiry">Expiry Date</label>
+                    <input type="date" id="donation-expiry">
+                </div>
+                <div class="form-group">
+                    <label for="donation-location">Pickup Location</label>
+                    <input type="text" id="donation-location" placeholder="e.g., Downtown Community Center">
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Add Donation</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="modal-overlay hidden" id="payment-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Make Monetary Donation</h3>
+                <button class="modal-close" data-modal="payment-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="payment-form" id="payment-form-container">
+                    <div class="form-group">
+                        <label for="donation-amount">Donation Amount ($)</label>
+                        <input type="number" id="donation-amount" min="1" step="0.01" placeholder="25.00" required>
+                    </div>
+                    
+                    <div class="payment-summary" id="payment-summary">
+                        <div class="summary-item">
+                            <span>Donation Amount:</span>
+                            <span id="summary-amount">$0.00</span>
+                        </div>
+                        <div class="summary-item total">
+                            <span>Total:</span>
+                            <span id="summary-total">$0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Card Details</label>
+                        <div id="card-element" class="stripe-element">
+                            <!-- Stripe Elements will create form elements here -->
+                        </div>
+                        <div id="card-errors" role="alert" class="error-message"></div>
+                    </div>
+
+                    <button id="submit-payment" class="btn btn-success btn-full">
+                        <span id="button-text">Donate Now</span>
+                        <span id="payment-spinner" class="spinner hidden"></span>
+                    </button>
+                </div>
+
+                <div class="payment-success hidden" id="payment-success">
+                    <div class="success-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h4>Payment Successful!</h4>
+                    <p>Thank you for your generous donation. Your contribution will help feed families in need.</p>
+                    <button class="btn btn-primary btn-full" onclick="closePaymentModal()">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
